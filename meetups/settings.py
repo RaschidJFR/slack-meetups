@@ -37,7 +37,11 @@ ALLOWED_HOSTS = [
     "127.0.0.1",
     "meetups.harrisonliddiard.com",
     ".ngrok.io",
-    ".lhr.life" # https://localhost.run
+    ".ngrok-free.app",
+    ".ngrok-free.dev",
+    ".ngrok.app",
+    ".ngrok.dev",
+    ".lhr.life"  # https://localhost.run
 ]
 
 # https://docs.djangoproject.com/en/5.0/ref/settings/#csrf-trusted-origins
