@@ -45,12 +45,12 @@ def handle_slack_message(request):
         return JsonResponse(status=400,
             data={"error": "request body is not valid JSON"})
     event = req.get("event", {})
+    event_type = event.get("type", req.get("type"))
     # To verify our app's URL, Slack sends a POST JSON payload with a
     # "challenge" parameter with which the app must respond to verify it.
-    # Only allow this in debug mode.
-    if DEBUG and req.get("challenge"):
-        return JsonResponse(req)
-    event_type = event.get("type")
+    # https://docs.slack.dev/reference/events/url_verification/
+    if event_type == "url_verification":
+        return JsonResponse({"challenge": req.get("challenge")})
     if event_type != "message":
         return JsonResponse(status=400,
             data={"error": f"invalid event type \"{event_type}\""})
