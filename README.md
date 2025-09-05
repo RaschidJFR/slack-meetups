@@ -66,7 +66,7 @@ For people who are new to using the bot (which will be everyone on your first ro
 
 Let's see what both scenarios look like by creating a round. Go back to the main page of the admin interface. Under the "Matcher" list to the right of "Rounds", click the "Add" button.
 
-Select a pool and a start and end date. A week is usually good – start on a Monday and end on a Friday. You can set these to whatever you want though!
+Select a pool and a start and end date. The end date is the deadline for participants to respond with their availability (or intro) before the actual matching starts. A week is usually good – start on a Monday and end on a Friday. You can set these to whatever you want though!
 
 ![create round](screenshots/create_round.png)
 
@@ -94,7 +94,7 @@ You can see who was matched by going to the admin interface, and under "Matcher"
 
 ### Find out who met up
 
-When the current round is over and you're ready to start a new one, follow the same instructions above under "Start a round of matching". The bot will still solicit everyone's availability, but this time after each user RSVPs, the bot will check if this person met with someone before. If so, it will send a follow-up message asking if they met up with their previous match. Here's what that looks like:
+When the current round is over and you're ready to start a new one, follow the same instructions above under "Start a round of matching". The bot will still solicit everyone's availability, but this time after each user RSVPs, the bot will check if this person was paired with someone before. If so, it will send a follow-up message asking if they met up with their previous match (from the round with the latest `end date`). Here's what that looks like:
 
 ![ask if met](screenshots/ask_if_met.png)
 
@@ -228,7 +228,8 @@ _Come back to this section later if you don't have a server URL yet._
 3. `python manage.py migrate` to create the database tables
 4. `python manage.py createsuperuser` to create your user to log in to the admin
 5. `python manage.py runserver` to start the server
-3. Visit http://localhost:8000/admin/ and log in with the credentials you set in the `.env` file
+6. `python manage.py test` to run unit tests
+7. Visit http://localhost:8000/admin/ and log in with the credentials you set in the `.env` file
 
 #### Configuring the Celery task queue
 

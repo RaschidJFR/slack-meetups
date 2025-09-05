@@ -7,7 +7,7 @@ from django.utils.decorators import decorator_from_middleware
 from django.views.decorators.cache import cache_page
 
 import matcher.messages as messages
-from meetups.settings import DEBUG, ADMIN_SLACK_USER_ID
+from meetups.settings import ADMIN_SLACK_USER_ID
 from .constants import QUESTIONS
 from .middleware import VerifySlackRequest
 from .models import (Person, Match, Pool, PoolMembership, Round,
@@ -58,7 +58,7 @@ def handle_slack_message(request):
     # conversation loop with itself.
     bot_id = event.get("bot_id")
     if bot_id:
-        return HttpResponse(204)
+        return HttpResponse(status=204)
     # If the message sent was from the admin and they're @-mentioning someone,
     # send a message to that Slack user from the bot.
     message_sender = event.get("user")
