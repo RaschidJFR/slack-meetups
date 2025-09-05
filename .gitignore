@@ -10,3 +10,4 @@ app.yaml
 app.log
 rtmProxy/
 .env
+.venv/
