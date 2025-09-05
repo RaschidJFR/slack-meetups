@@ -45,7 +45,10 @@ _Respond as the bot by typing_ “<@{user_id}> <your reply>”
 
 UNKNOWN_MESSAGE_NO_ADMIN = "Sorry, I don’t know how to respond to most messages! 😬 If you have a question or feedback, you can contact my admin."
 
-INTRO_RECEIVED = "Thanks for the intro, {person.casual_name}! You’ll receive your first pairing at the start of the next round."
+INTRO_RECEIVED = """Thanks for the intro, {person.casual_name}! You’ll receive your first pairing at the start of the next round.
+
+You can always update your intro later by messaging me with \"update intro\".
+"""
 
 INTRO_RECEIVED_QUESTIONS = "If you have any questions in the meantime, feel free to ask."
 
@@ -61,6 +64,8 @@ INTRO_UPDATED = """I’ve updated your intro to:
 {person_intro}
 
 This will be sent to people you pair with going forward!
+
+You can always update your intro later by messaging me with \"update intro\".
 """
 
 BLOCKS = {
@@ -138,3 +143,26 @@ def format_block_text(block_name, block_id, dictionary):
     block[0]["text"]["text"] = block[0]["text"]["text"].format_map(dictionary)
     block[1]["block_id"] = block[1]["block_id"].format(id=block_id)
     return block
+
+def format_selected_block(blocks, selected_value):
+    """Format a block to show which button was selected"""
+    formatted_blocks = copy.deepcopy(blocks)
+    
+    # Find the selected button text
+    selected_text = None
+    for element in formatted_blocks[1]["elements"]:
+        if element["value"] == selected_value:
+            selected_text = element["text"]["text"]
+            break
+    
+    # Replace the actions block with a static text block showing the selection
+    if selected_text:
+        formatted_blocks[1] = {
+            "type": "section",
+            "text": {
+                "type": "mrkdwn",
+                "text": f"> 👉 *{selected_text}*"
+            }
+        }
+    
+    return formatted_blocks

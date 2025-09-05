@@ -166,3 +166,133 @@ class RespondToUserTest(TestCase):
         mock_prompt_intro_update.assert_called_once_with(event, mock_person)
         self.assertEqual(response.status_code, 204)
 
+
+class SendMsgTest(TestCase):
+    
+    @patch('matcher.tasks.client')
+    def test_send_msg_with_text_kwargs_no_payload(self, mock_client):
+        """Test send_msg with text in kwargs and no payload"""
+        from matcher.tasks import send_msg
+        mock_client.chat_postMessage.return_value = {"ok": True}
+        
+        channel_id = "C123456789"
+        result = send_msg(channel_id, text="Hello world!")
+        
+        mock_client.chat_postMessage.assert_called_once_with(
+            channel=channel_id, 
+            as_user=True, 
+            text="Hello world!"
+        )
+        mock_client.call_api.assert_not_called()
+        self.assertEqual(result, f"{channel_id}: \"Hello world!\"")
+    
+    @patch('matcher.tasks.client')
+    def test_send_msg_with_blocks_kwargs_no_payload(self, mock_client):
+        """Test send_msg with blocks in kwargs and no payload"""
+        from matcher.tasks import send_msg
+        
+        mock_client.chat_postMessage.return_value = {"ok": True}
+        test_blocks = [{"type": "section", "text": {"type": "mrkdwn", "text": "Test block"}}]
+        
+        channel_id = "C123456789"
+        result = send_msg(channel_id, blocks=test_blocks)
+        
+        mock_client.chat_postMessage.assert_called_once_with(
+            channel=channel_id, 
+            as_user=True, 
+            blocks=test_blocks
+        )
+        mock_client.call_api.assert_not_called()
+        self.assertEqual(result, f"{channel_id}: \"{test_blocks}\"")
+    
+    @patch('matcher.tasks.client')
+    @patch('matcher.tasks.messages.format_selected_block')
+    def test_send_msg_with_payload_and_text(self, mock_format_selected_block, mock_client):
+        """Test send_msg with payload and text kwargs"""
+        from matcher.tasks import send_msg
+        
+        mock_client.chat_postMessage.return_value = {"ok": True}
+        mock_client.api_call.return_value = {"ok": True}
+        mock_format_selected_block.return_value = [{"type": "section", "text": "updated"}]
+        
+        payload = {
+            "actions": [{"value": "selected_option"}],
+            "message": {
+                "ts": "1234567890.123456",
+                "blocks": [{"type": "section", "text": "original"}]
+            },
+            "channel": {"id": "C987654321"}
+        }
+        
+        channel_id = "C123456789"
+        result = send_msg(channel_id, payload=payload, text="Updated message")
+        
+        # Verify the original message was updated
+        mock_client.api_call.assert_called_once_with("chat.update", json={
+            "channel": "C987654321",
+            "ts": "1234567890.123456",
+            "blocks": [{"type": "section", "text": "updated"}]
+        })
+        
+        # Verify new message was posted
+        mock_client.chat_postMessage.assert_called_once_with(
+            channel=channel_id, 
+            as_user=True, 
+            text="Updated message"
+        )
+        
+        self.assertEqual(result, f"{channel_id}: \"Updated message\"")
+    
+    @patch('matcher.tasks.client')
+    def test_send_msg_with_payload_missing_message(self, mock_client):
+        """Test send_msg with payload that has missing message"""
+        from matcher.tasks import send_msg
+        
+        mock_client.chat_postMessage.return_value = {"ok": True}
+        
+        payload = {
+            "channel": {"id": "C987654321"}
+        }
+        
+        channel_id = "C123456789"
+        send_msg(channel_id, payload=payload, text="Test message")
+        
+        # Should not call api_call when actions are missing
+        mock_client.api_call.assert_not_called()
+        
+        # Should still post the new message
+        mock_client.chat_postMessage.assert_called_once_with(
+            channel=channel_id, 
+            as_user=True, 
+            text="Test message"
+        )
+    
+    @patch('matcher.tasks.client')
+    @patch('matcher.tasks.logger')
+    def test_send_msg_payload_update_failure(self, mock_logger, mock_client):
+        """Test send_msg when payload update fails but message posting succeeds"""
+        from matcher.tasks import send_msg
+        
+        mock_client.api_call.side_effect = Exception("Update failed")
+        mock_client.chat_postMessage.return_value = {"ok": True}
+        
+        payload = {
+            "actions": [{"value": "selected_option"}],
+            "message": {
+                "ts": "1234567890.123456",
+                "blocks": [{"type": "section", "text": "original"}]
+            },
+            "channel": {"id": "C987654321"}
+        }
+        
+        channel_id = "C123456789"
+        result = send_msg(channel_id, payload=payload, text="Test message")
+        
+        # Should still post the new message
+        mock_client.chat_postMessage.assert_called_once_with(
+            channel=channel_id, 
+            as_user=True, 
+            text="Test message"
+        )
+        
+        self.assertEqual(result, f"{channel_id}: \"Test message\"")

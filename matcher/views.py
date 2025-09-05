@@ -272,7 +272,7 @@ def update_availability(payload, action, pool_id):
         message = messages.UPDATED_UNAVAILABLE
     # perform tasks in sequence to avoid a race condition between the messages
     # https://docs.celeryproject.org/en/4.4.2/userguide/canvas.html#chains
-    (send_msg.s(user_id, text=message) |
+    (send_msg.s(user_id, payload=payload, text=message) |
      ask_if_met.s(user_id, pool.pk)).delay()
     return HttpResponse(204)
 
@@ -318,7 +318,7 @@ def update_met(payload, action, match_id):
         message = messages.MET.format(other_person=other_person)
     else:
         message = messages.DID_NOT_MEET
-    send_msg.delay(user_id, text=message)
+    send_msg.delay(user_id, payload=payload, text=message)
     return HttpResponse(204)
 
 

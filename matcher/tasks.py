@@ -53,11 +53,33 @@ def get_retries_remaining(self):
 
 
 @app.task(bind=True)
-def send_msg(self, channel_id, **kwargs):
-    """send a message to a user or channel as the bot
+def send_msg(self, channel_id, payload=None, **kwargs):
+    """send a message to a user or channel as the bot.
+    
+    If a payload is provided of an existing, it will first update it by highlighting a selected block based on
+    the user's interaction, then post the new message.
     """
     message_text = kwargs.get("text", kwargs.get("blocks"))
     try:
+        if payload:
+            try:
+                actions = payload.get("actions", [])
+                original_msg = payload.get("message")
+                if not actions or not original_msg:
+                    logger.warning(f"No actions or message found in payload for channel {channel_id}")
+                else:
+                    action = actions[0]
+                    selected_value = action.get("value", "")
+                    ts = original_msg.get("ts", "")
+                    blocks = original_msg.get("blocks", [])
+                    channel = payload.get("channel", {}).get("id", "") 
+                    client.api_call("chat.update", json={
+                        "channel": channel,
+                        "ts": ts,
+                        "blocks": messages.format_selected_block(blocks=blocks, selected_value=selected_value),
+                    })
+            except:
+                logger.warning(f"Failed to update message {ts} in channel {channel_id}.")
         client.chat_postMessage(channel=channel_id, as_user=True, **kwargs)
     except Exception as exception: # see [1] (bottom of file)
         wait_time = get_wait_time(exception, self.request)
