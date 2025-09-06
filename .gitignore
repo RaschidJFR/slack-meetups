@@ -11,3 +11,4 @@ app.log
 rtmProxy/
 .env
 .venv/
+postgres_data/

@@ -3,8 +3,9 @@ slackclient==2.9.4
 celery==5.4.0
 whitenoise==6.8.2
 python-dotenv==1.0.1
-gunicorn
-pytz
+gunicorn==23.0.0
+psycopg[binary]==3.2.9
+pytz==2025.2
 
 # development dependencies
 pylint-django

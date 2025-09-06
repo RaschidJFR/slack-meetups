@@ -6,12 +6,13 @@ services:
     entrypoint: /app/entrypoint.sh
     build: .
     volumes:
-      - .:/app
+      - .:/app  # Needed for cron-jobs file
     env_file:
       - .env
     ports:
       - "${PORT}:${PORT}"
     depends_on:
+      - postgres
       - rabbitmq
       - celery
     networks:
@@ -22,12 +23,28 @@ services:
     container_name: meetups_celery
     build: .
     command: celery -A matcher.tasks worker --loglevel=info
-    volumes:
-      - .:/app
     env_file:
       - .env
     depends_on:
+      - postgres
       - rabbitmq
+    networks:
+      - app_network
+    restart: unless-stopped
+
+  postgres:
+    container_name: meetups_postgres
+    image: postgres:15
+    env_file:
+      - .env
+    environment:
+      POSTGRES_DB: ${DB_NAME}
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+    volumes:
+      - ./postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
     networks:
       - app_network
     restart: unless-stopped

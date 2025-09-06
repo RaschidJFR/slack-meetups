@@ -4,8 +4,8 @@ FROM python:3.12-alpine
 # Set the working directory in the container
 WORKDIR /app
 
-# Copy the requirements file into the container
-COPY requirements.txt /app/
+# Copy the rest of the application code into the container
+COPY . /app/
 
 # Install the package dependencies
 RUN pip install --no-cache-dir -r requirements.txt
@@ -21,9 +21,6 @@ RUN curl -fsSLO "$SUPERCRONIC_URL" \
  && chmod +x "$SUPERCRONIC" \
  && mv "$SUPERCRONIC" "/usr/local/bin/${SUPERCRONIC}" \
  && ln -s "/usr/local/bin/${SUPERCRONIC}" /usr/local/bin/supercronic
-
-# Copy the rest of the application code into the container
-COPY . /app/
 
 # Don't buffer log output to stdout
 ENV PYTHONUNBUFFERED 1

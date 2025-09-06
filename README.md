@@ -198,6 +198,13 @@ _Come back to this section later if you don't have a server URL yet._
     - `SLACK_API_TOKEN`: a bot token to connect to Slack, usually starts with "xoxb-".
     - `SLACK_SIGNING_SECRET`: used to verify that requests are from Slack.
     - `ADMIN_SLACK_USER_ID`: (optional) Slack user ID for the admin who will be messaged if the bot receives a message it doesn't know how to act on.
+  - Postgres stuff:
+    - `DB_NAME`: name of the postgress database
+    - `DB_USER`: user for the app to connect to the database
+    - `DB_PASSWORD`: the database password
+    - `DB_HOST`: the host to access the database
+  - Celery/RabbitMQ stuff:
+    - `CELERY_BROKER_URL`: (optional) connection string to the container or RabbitMQ service if on a different network
 
 ### Running with Docker (recommended)
 
