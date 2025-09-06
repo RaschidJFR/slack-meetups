@@ -33,20 +33,12 @@ SECRET_KEY = os.getenv("SECRET_KEY")
 DEBUG = os.getenv('DEBUG', 'False') == 'True'
 
 ALLOWED_HOSTS = [
-    "localhost",
-    "127.0.0.1",
-    "meetups.harrisonliddiard.com",
-    ".ngrok.io",
-    ".ngrok-free.app",
-    ".ngrok-free.dev",
-    ".ngrok.app",
-    ".ngrok.dev",
-    ".lhr.life"  # https://localhost.run
+    os.getenv("HOST", "*")
 ]
 
 # https://docs.djangoproject.com/en/5.0/ref/settings/#csrf-trusted-origins
 CSRF_TRUSTED_ORIGINS = [
-    "https://meetups.harrisonliddiard.com",
+    f"https://{host}" if (host := os.getenv("HOST")) else "http://*"
 ]
 
 # Application definition

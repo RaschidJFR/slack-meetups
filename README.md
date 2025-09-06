@@ -188,14 +188,16 @@ _Come back to this section later if you don't have a server URL yet._
 1. In the top level of the repo, run `cp .env.example .env`
 2. Edit the `.env` example to fill in environment variables, including:
   - Django stuff:
-    - `SECRET_KEY`: a long random string for Django's cryptography
-    - `DJANGO_SUPERUSER_USERNAME`: username to log into the admin
-    - `DJANGO_SUPERUSER_EMAIL`: your email address
-    - `DJANGO_SUPERUSER_PASSWORD`: password to log into the admin 
+    - `HOST`: the public url of your app. Needed for production.
+    Supports wildecard notation for subdomains.
+    - `SECRET_KEY`: a long random string for Django's cryptography.
+    - `DJANGO_SUPERUSER_USERNAME`: username to log into the admin.
+    - `DJANGO_SUPERUSER_EMAIL`: your email address.
+    - `DJANGO_SUPERUSER_PASSWORD`: password to log into the admin.
   - Slack stuff:
-    - `SLACK_API_TOKEN`: a bot token to connect to Slack, usually starts with "xoxb-"
-    - `SLACK_SIGNING_SECRET`: used to verify that requests are from Slack
-    - `ADMIN_SLACK_USER_ID`: (optional) Slack user ID for the admin who will be messaged if the bot receives a message it doesn't know how to act on
+    - `SLACK_API_TOKEN`: a bot token to connect to Slack, usually starts with "xoxb-".
+    - `SLACK_SIGNING_SECRET`: used to verify that requests are from Slack.
+    - `ADMIN_SLACK_USER_ID`: (optional) Slack user ID for the admin who will be messaged if the bot receives a message it doesn't know how to act on.
 
 ### Running with Docker (recommended)
 
