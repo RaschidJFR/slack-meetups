@@ -34,3 +34,5 @@ RUN chmod +x /app/entrypoint.sh
 
 # Expose the port that the Gunicorn server will run on
 EXPOSE $PORT
+USER root
+
