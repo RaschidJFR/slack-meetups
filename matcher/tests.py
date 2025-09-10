@@ -393,3 +393,63 @@ class AdminTest(TestCase):
         # Clean up
         person.delete()
 
+
+class CreateRoundTest(TestCase):
+    
+    @patch('matcher.models.ask_availability')
+    def test_ask_availability_called_on_round_save(self, mock_ask_availability):
+        """Test that ask_availability is called when a new round is saved"""
+        from matcher.models import Pool, Round
+        
+        # Create a pool for the round
+        pool = Pool.objects.create(
+            name="Test Pool",
+            channel_id="C1234567890",
+            channel_name="#test-channel"
+        )
+        
+        # Create a new round, which should trigger ask_availability
+        round_instance = Round(pool=pool)
+        round_instance.save()
+        
+        # Verify ask_availability was called with the round instance
+        mock_ask_availability.assert_called_once_with(round_instance)
+
+    @patch('matcher.views.ask_if_met')
+    @patch('matcher.views.send_msg')
+    def test_ask_if_met_called_on_availability_update(self, mock_send_msg, mock_ask_if_met):
+        """Test that ask_if_met is called when updating availability"""
+
+        from matcher.models import Pool, Person, PoolMembership
+        from unittest.mock import MagicMock
+        from matcher.views import update_availability
+
+        # Create a pool and person
+        pool = Pool.objects.create(
+            name="Test Pool",
+            channel_id="C1234567890",
+            channel_name="#test-channel"
+        )
+        person = Person.objects.create(
+            user_id="U1234567890",
+            user_name="testuser",
+            full_name="Test User",
+            casual_name="Test"
+        )
+        PoolMembership.objects.create(person=person, pool=pool)
+        
+        # Mock the Celery chain
+        mock_chain = MagicMock()
+        mock_send_msg.s.return_value = mock_chain
+        mock_chain.__or__ = MagicMock(return_value=mock_chain)
+        mock_chain.delay = MagicMock()
+        
+        # Create payload and action for the update_availability function
+        payload = {"user": {"id": "U1234567890"}}
+        action = {"value": "yes"}
+        
+        # Call update_availability
+        update_availability(payload, action, pool.id)
+        
+        # Verify ask_if_met was included in the chain
+        mock_ask_if_met.s.assert_called_once_with("U1234567890", pool.pk)
