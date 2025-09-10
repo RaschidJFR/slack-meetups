@@ -296,3 +296,100 @@ class SendMsgTest(TestCase):
         )
         
         self.assertEqual(result, f"{channel_id}: \"Test message\"")
+
+
+class AdminTest(TestCase):
+    
+    @patch('matcher.admin.Match.objects.filter')
+    @patch('matcher.admin.Person.objects')
+    @patch('matcher.admin.random.choice')
+    def test_odd_number_excludes_participant_successfully(self, mock_random_choice, mock_person_objects, mock_match_filter):
+        """Test that function successfully excludes someone when there's an odd number of participants"""
+        from matcher.admin import get_round_participants
+        
+        # Create mock round object
+        mock_round = type('MockRound', (), {})()
+        mock_round.pool = type('MockPool', (), {'name': 'test-pool'})()
+        
+        # Create person objects
+        mock_person1 = type('MockPerson', (), {'id': 1, 'user_name': 'user1', 'can_be_excluded': True})()
+        mock_person2 = type('MockPerson', (), {'id': 2, 'user_name': 'user2', 'can_be_excluded': False})()
+        mock_person3 = type('MockPerson', (), {'id': 3, 'user_name': 'user3', 'can_be_excluded': True})()
+        
+        # Mock the queryset for excludable people (people who can be excluded)
+        person_to_exclude = mock_person1
+        excludable_people = [person_to_exclude, mock_person3]
+        
+        # Mock the final queryset after exclusion (even number)
+        people_to_match__minus_excluded = type('MockQuerySet', (), {
+            '__len__': lambda self: 2  # even number after exclusion
+        })()
+        
+        # Mock the queryset for initial people
+        mock_query_set = type('MockQuerySet', (), {
+            '__len__': lambda self: 3,  # odd number
+            'filter': lambda self, **kwargs: excludable_people if kwargs.get('can_be_excluded') else self,
+            'exclude': lambda self, **kwargs: people_to_match__minus_excluded,
+            'order_by': lambda self, field: self
+        })()
+        
+        # Set up the mock chain
+        mock_match_filter.return_value.count.return_value = 0
+        mock_person_objects.filter.return_value = mock_query_set
+        mock_random_choice.return_value = person_to_exclude  # person to exclude
+        
+        # Call the function
+        result = get_round_participants(mock_round)
+        
+        # Verify the result is the final queryset with even number
+        self.assertEqual(result, people_to_match__minus_excluded)
+        self.assertEqual(len(result), 2)
+
+    @patch('matcher.admin.Match.objects.filter')
+    @patch('matcher.admin.Person.objects')
+    @patch('matcher.admin.logger')
+    def test_odd_number_no_excludable_raises_exception(self, mock_logger, mock_person_objects, mock_match_filter):
+        """Test that function raises exception when there's an odd number but no one can be excluded"""
+        from matcher.admin import get_round_participants
+        
+        # Create mock round object
+        mock_round = type('MockRound', (), {})()
+        mock_round.pool = type('MockPool', (), {'name': 'test-pool'})()
+        
+        # Mock the queryset for initial people
+        mock_query_set = type('MockQuerySet', (), {
+            '__len__': lambda self: 3,  # odd number
+            'filter': lambda self, **kwargs: [] if kwargs.get('can_be_excluded') else self,
+            'order_by': lambda self, field: self
+        })()
+        
+        # Set up the mock chain
+        mock_match_filter.return_value.count.return_value = 0
+        mock_person_objects.filter.return_value = mock_query_set
+        
+        # Call the function and expect an exception
+        with self.assertRaises(Exception) as context:
+            get_round_participants(mock_round)
+        
+        # Verify the exception message
+        self.assertIn("There are an odd number of people to match this round", str(context.exception))
+        self.assertIn("no one in this pool is marked as available and as a person who can be excluded", str(context.exception))
+
+    def test_person_can_be_excluded_default_true(self):
+        """Test that Person model has can_be_excluded=True as default value"""
+        from matcher.models import Person
+        
+        # Create a person without specifying can_be_excluded
+        person = Person(
+            user_id="U123456789",
+            user_name="testuser",
+            full_name="Test User"
+        )
+        person.save()
+        
+        # Verify that can_be_excluded defaults to True
+        self.assertTrue(person.can_be_excluded)
+        
+        # Clean up
+        person.delete()
+

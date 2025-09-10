@@ -77,7 +77,7 @@ class Person(models.Model):
     intro = models.TextField(blank=True)
     intro.help_text = "Introduction that appears to other people when this "\
         "person is matched with them."
-    can_be_excluded = models.BooleanField(default=False)
+    can_be_excluded = models.BooleanField(default=True)
     can_be_excluded.help_text = "Whether or not, in the event of an odd "\
         "number of available people in a matching pool, this person could "\
         "be excluded. Every pool needs at least one available person who "\
