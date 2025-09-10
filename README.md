@@ -237,7 +237,7 @@ _Come back to this section later if you don't have a server URL yet._
 3. `python manage.py migrate` to create the database tables
 4. `python manage.py createsuperuser` to create your user to log in to the admin
 5. `python manage.py runserver` to start the server
-6. `python manage.py test` to run unit tests
+6. `DJANGO_SETTINGS_MODULE=meetups.settings.test python manage.py test` to run unit tests
 7. Visit http://localhost:8000/admin/ and log in with the credentials you set in the `.env` file
 
 #### Configuring the Celery task queue

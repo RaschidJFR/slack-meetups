@@ -36,9 +36,11 @@ ALLOWED_HOSTS = [
     os.getenv("HOST", "*")
 ]
 
-# https://docs.djangoproject.com/en/5.0/ref/settings/#csrf-trusted-origins
 CSRF_TRUSTED_ORIGINS = [
-    f"https://{host}" if (host := os.getenv("HOST")) else "http://*"
+    f"http://{host}",
+    f"https://{host}",
+] if (host := os.getenv("HOST")) else [
+    "http://localhost:8000",  # Safe default for development
 ]
 
 # Application definition
