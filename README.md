@@ -127,6 +127,8 @@ After you've completed a few rounds of pairing, you might want to take a look at
 
 #### Create the app
 
+> **Easiest setup:** Instead of manually configuring your Slack app, you can simply upload the provided [manifest.example.yml](./manifest.example.yml) file in the Slack app configuration page, under *Features > Manifest*. This will automatically set up all required permissions and settings.
+
 1. Create a Slack app under your desired workspace at [https://api.slack.com/apps/](https://api.slack.com/apps/).
 2. Under Features > App Home > Show Tabs, **check** the checkbox "Allow users to send Slash commands and messages from the messages tab".
 3. Under Settings > Basic Information > Display Information, set your app name and description as desired. I recommend using the [cute bot logo](graphics/bot_logo.png).

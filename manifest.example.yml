@@ -1,0 +1,38 @@
+display_information:
+  name: Slack Meetups
+  description: Slack bot test for TPMA
+  background_color: "#282530"
+features:
+  bot_user:
+    display_name: Slack Meetups
+    always_online: false
+oauth_config:
+  scopes:
+    bot:
+      - app_mentions:read
+      - channels:manage
+      - chat:write
+      - groups:read
+      - groups:write
+      - im:history
+      - im:read
+      - im:write
+      - mpim:history
+      - mpim:read
+      - mpim:write
+      - users.profile:read
+      - users:read
+      - users:read.email
+      - channels:read
+settings:
+  event_subscriptions:
+    request_url: https://slack-meetups-production.up.railway.app/slack/message/ # Change this to your domain
+    bot_events:
+      - app_mention
+      - message.im
+  interactivity:
+    is_enabled: true
+    request_url: https://slack-meetups-production.up.railway.app/slack/action/  # Change this to your domain
+  org_deploy_enabled: false
+  socket_mode_enabled: false
+  token_rotation_enabled: false
