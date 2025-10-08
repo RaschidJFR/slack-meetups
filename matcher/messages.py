@@ -12,6 +12,13 @@ WELCOME_INTRO = """Welcome, {person.casual_name}! Thanks for joining <#{pool.cha
 
 Please *introduce yourself* by replying with a short description. This will be sent to people you pair with.
 
+Here's a template you can use:
+• Name:
+• Title & where you work:
+• What kind of product work you do:
+• Fun fact about you:
+• (Optional) Link to your Calendly or meeting scheduler:
+
 After I have your introduction, you’ll get your first pairing!
 """
 
