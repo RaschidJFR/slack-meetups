@@ -278,12 +278,14 @@ server {
 
 If you want to do recurring matching rounds in a Slack channel and don't want to have to manually log into the admin and press buttons to do so every time, follow these instructions:
 
-1. After creating a matching pool (see the [User Guide](#user-guide-for-admins) above), open the [`cron-jobs`](cron-jobs) file at the top of the repo.
-2. Uncomment the lines containing `create_round` (for automated round creation – asking availability), and `do_round_matching` (to make 1:1 matches after people have had time to respond).
-3. Set the schedule on which you want each of these things to happen using [cron syntax](https://crontab.guru/#0_10_*_*_1), such as `0 10 * * 1` for 10:00am (server time) every Monday.
-4. Replace the example channel IDs (`C07AA3ZH0Q5`) with the one from your matching pool. You can also provide multiple channel IDs separated by spaces.
-5. Save the file.
-6. Rebuild and restart the Docker container.
+1. After creating a matching pool (see the [User Guide](#user-guide-for-admins) above), set these environment variables in your `.env` file (or directly on the Compose service):
+  - `CRON_CREATE_ROUND` – schedule to run `manage.py create_round`
+  - `CRON_DO_ROUND` – schedule to run `manage.py do_round_matching`
+  - `CRON_CHANNEL_ID` – Slack channel ID(s) for the pool. You can provide multiple channel IDs separated by spaces.
+2. Use standard [cron syntax](https://crontab.guru/#0_10_*_*_1), e.g. `0 10 * * 1` for 10:00am (server time) every Monday.
+3. Start (or restart) your Docker services: the container entrypoint will generate the [`cron-jobs`](cron-jobs) file on startup when all three vars are set. No rebuild is required.
+4. Optional: verify the generated file with `cat /app/cron-jobs` inside the `django` container.
+5. Optional: watch cron output at `/var/log/cron.log` inside the `django` container.
 
 ## `rtm` branch
 
